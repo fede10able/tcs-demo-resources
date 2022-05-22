@@ -1,0 +1,5 @@
+**/.terraform/**
+**/.terraform*
+**/artifacs/**
+**/terraform.tfstate*
+**/plan.out
