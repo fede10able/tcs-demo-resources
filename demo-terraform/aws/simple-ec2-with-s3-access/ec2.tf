@@ -3,24 +3,24 @@ locals {
     ssh_key_name = "demo-key-${data.aws_caller_identity.current.user_id}"
 }
 
-## Generate a new key
-resource "tls_private_key" "ssh_key" {
-    algorithm = "ED25519"
-}
-## Register the key in AWS
-resource "aws_key_pair" "kp" {
-    key_name   = "demo-key-${data.aws_caller_identity.current.user_id}"
-    public_key = tls_private_key.ssh_key.public_key_openssh
-}
-## Write the key in artifacs folder
-resource "local_file" "ssk_key_pub" {
-    content  = tls_private_key.ssh_key.public_key_openssh
-    filename = "./artifacs/${local.ssh_key_name}.pub"
-}
-resource "local_file" "ssk_key_priv" {
-    content  = tls_private_key.ssh_key.private_key_openssh
-    filename = "./artifacs/${local.ssh_key_name}"
-}
+# ## Generate a new key
+# resource "tls_private_key" "ssh_key" {
+#     algorithm = "ED25519"
+# }
+# ## Register the key in AWS
+# resource "aws_key_pair" "kp" {
+#     key_name   = "demo-key-${data.aws_caller_identity.current.user_id}"
+#     public_key = tls_private_key.ssh_key.public_key_openssh
+# }
+# ## Write the key in artifacs folder
+# resource "local_file" "ssk_key_pub" {
+#     content  = tls_private_key.ssh_key.public_key_openssh
+#     filename = "./artifacts/${local.ssh_key_name}.pub"
+# }
+# resource "local_file" "ssk_key_priv" {
+#     content  = tls_private_key.ssh_key.private_key_openssh
+#     filename = "./artifacts/${local.ssh_key_name}"
+# }
 
 ## Search for an Ubuntu AMI in your region 
 data "aws_ami" "ubuntu" {
@@ -44,4 +44,6 @@ resource "aws_instance" "web" {
     instance_type = var.instance_type
 
     tags = local.default_tags
+
+    # key_name = aws_key_pair.kp.key_name
 }
