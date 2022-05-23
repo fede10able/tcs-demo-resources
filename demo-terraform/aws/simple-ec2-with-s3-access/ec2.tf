@@ -43,7 +43,21 @@ resource "aws_instance" "web" {
     ami = data.aws_ami.ubuntu.id
     instance_type = var.instance_type
 
+    root_block_device {
+        encrypted = false
+        volume_size = 20
+        volume_type = "standard"
+        tags = local.default_tags
+    }
+
+    subnet_id = random_shuffle.web_subnet.result[0]
+
     tags = local.default_tags
 
     # key_name = aws_key_pair.kp.key_name
+}
+
+resource "random_shuffle" "web_subnet" {
+    input        = jsondecode(data.aws_ssm_parameter.demo_vpc_private_subnets.value)
+    result_count = 1
 }
