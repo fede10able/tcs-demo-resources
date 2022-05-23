@@ -39,7 +39,10 @@ data "aws_ami" "ubuntu" {
     }
 }
 
+
+
 resource "aws_instance" "web" {
+    
     ami = data.aws_ami.ubuntu.id
     instance_type = var.instance_type
 
@@ -52,12 +55,45 @@ resource "aws_instance" "web" {
 
     subnet_id = random_shuffle.web_subnet.result[0]
 
-    tags = local.default_tags
+    tags = merge(local.default_tags,
+        {
+            Name = "${replace(local.user_mail,"@","-")}-${random_string.bucket_suffix.result}"
+        }
+    )
 
     # key_name = aws_key_pair.kp.key_name
+
+    vpc_security_group_ids = [aws_security_group.web_sg.id]
 }
 
 resource "random_shuffle" "web_subnet" {
     input        = jsondecode(data.aws_ssm_parameter.demo_vpc_private_subnets.value)
     result_count = 1
+}
+
+resource "aws_security_group" "web_sg" {
+  name        = "${replace(local.user_mail,"@","-")}-${random_string.bucket_suffix.result}"
+  vpc_id      = data.aws_ssm_parameter.demo_vpc_id.value
+
+    ingress {
+        description      = "Incoming SSH"
+        from_port        = 22
+        to_port          = 22
+        protocol         = "tcp"
+        cidr_blocks      = [ "0.0.0.0/0" ]
+    }
+
+    egress {
+        from_port        = 0
+        to_port          = 0
+        protocol         = "-1"
+        cidr_blocks      = ["0.0.0.0/0"]
+        ipv6_cidr_blocks = ["::/0"]
+    }
+
+    tags = merge(local.default_tags,
+        {
+            Name = "${replace(local.user_mail,"@","-")}-${random_string.bucket_suffix.result}"
+        }
+    )
 }
