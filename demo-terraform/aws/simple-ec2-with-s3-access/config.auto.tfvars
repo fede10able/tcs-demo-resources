@@ -1,6 +1,6 @@
 
-instance_type = "t2.micro"
-default_aws_region = "us-east-2"
+instance_type = "t2.nano"
+default_aws_region = "us-east-1"
 
 ## Default tags
 default_tags = {
